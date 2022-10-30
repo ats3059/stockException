@@ -1,8 +1,7 @@
-package com.example.stock.service;
+package com.example.stock.facade;
 
 import com.example.stock.domain.Stock;
 import com.example.stock.reopsitory.StockRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +13,11 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
-class StockServiceTest {
 
+@SpringBootTest
+class NamedLockStockFacadeTest {
     @Autowired
-    private PessimisticLockStockService stockService;
+    private NamedLockStockFacade namedLockStockFacade;
 
     @Autowired
     private StockRepository stockRepository;
@@ -31,7 +30,7 @@ class StockServiceTest {
 
     @Test
     public void stock_decrease() {
-        stockService.decrease(1L,1L);
+        namedLockStockFacade.decrease(1L,1L);
         Stock stock = stockRepository.findById(1L).orElseThrow();
         assertThat(99L).isEqualTo(stock.getQuantity());
     }
@@ -44,7 +43,7 @@ class StockServiceTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(()->{
                 try{
-                    stockService.decrease(1L,1L);
+                    namedLockStockFacade.decrease(1L,1L);
                 }finally {
                     latch.countDown();
                 }
